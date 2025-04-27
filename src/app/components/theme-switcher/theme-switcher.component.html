@@ -1,0 +1,18 @@
+<div class="dropdown">
+    <button
+      class="btn btn-secondary dropdown-toggle"
+      type="button"
+      id="themeDropdown"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      Select Theme
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="themeDropdown">
+      <li *ngFor="let theme of themes">
+        <button class="dropdown-item" (click)="changeTheme(theme)">
+          {{ theme }}
+        </button>
+      </li>
+    </ul>
+  </div>
