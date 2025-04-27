@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './theme-switcher.component.scss'
 })
 export class ThemeSwitcherComponent {
-  themes = ['darkly', 'flatly'];
+  themes = ['darkly','flatly','quartz','lux'];
 
   constructor(private themeService:ThemeService){}
 
