@@ -16,7 +16,7 @@ import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switc
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Food & Beverage</a></li>  
+                        <li class="nav-item"><a class="nav-link" >Food & Beverage</a></li>  
                         <li class="nav-item"><a class="nav-link" href="#">Attraction</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Service</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Clients</a></li>                        
@@ -42,6 +42,7 @@ import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switc
         }
         .navbar-nav .nav-link:hover {
             border-bottom: 2px solid #fff;
+            cursor:pointer;
         }
     `
     ],
