@@ -5,7 +5,7 @@ import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switc
     selector: "app-navbar",
     imports: [ThemeSwitcherComponent],
     template: `
-        <nav class="navbar navbar-expand-lg bg-primary">
+        <nav class="navbar navbar-expand-lg bg-primary shadow-sm">
             <div class="container">
                 <a href="" class="navbar-brand d-none d-lg-inline-block">
                     <img class="logo" src="./logo-Treetop-lodge.png" alt="Tree Top Lodge Logo">
