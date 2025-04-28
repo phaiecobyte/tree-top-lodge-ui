@@ -1,12 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router} from '@angular/router';
+import { SearchComponent } from "../shared/search.component";
 
 @Component({
   selector: 'app-food-beverage',
-  imports: [],
+  imports: [CommonModule,SearchComponent],
   templateUrl: './food-beverage.component.html',
   styleUrl: './food-beverage.component.scss'
 })
-export class FoodBeverageComponent implements OnInit{
+export class FoodBeverageComponent {
 
   food:any[]=[
     {
@@ -58,10 +61,6 @@ export class FoodBeverageComponent implements OnInit{
       price:"5$"
     },
 ]
-
   constructor(){}
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
-  }
 
 }

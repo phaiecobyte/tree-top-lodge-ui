@@ -1,3 +1,4 @@
+<app-search/>
 <div class="container-fluid">
     <div class="row">
         <h5>Food</h5>
@@ -9,7 +10,23 @@
                         <h5 class="card-title">{{item.name}}</h5>
                         <p class="card-text">{{item.description}}</p>
                         <p class="card-text"><strong>Price:</strong>{{item.price}}</p>
-                        <a href="#" class="btn btn-success">Order Now</a>
+                        <a href="/product-detail/{{item.id}}" class="btn btn-success">View More</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+    <h5>Drink</h5>
+        @for (item of food; track $index) {
+            <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+                <div class="card">
+                    <img src="{{item.image}}" class="card-img-top" alt="{{item.name}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{item.name}}</h5>
+                        <p class="card-text">{{item.description}}</p>
+                        <p class="card-text"><strong>Price:</strong>{{item.price}}</p>
+                        <a href="#" class="btn btn-success">View More</a>
                     </div>
                 </div>
             </div>

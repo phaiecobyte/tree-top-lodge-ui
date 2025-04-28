@@ -1,9 +1,10 @@
 import { Component } from "@angular/core";
 import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switcher.component";
+import { RouterModule } from "@angular/router";
 
 @Component({
     selector: "app-navbar",
-    imports: [ThemeSwitcherComponent],
+    imports: [ThemeSwitcherComponent,RouterModule],
     template: `
         <nav class="navbar navbar-expand-lg bg-primary shadow-sm">
             <div class="container">
@@ -16,7 +17,7 @@ import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switc
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" >Food & Beverage</a></li>  
+                        <li class="nav-item"><a class="nav-link" routerLink="food-beverage" >Food & Beverage</a></li>  
                         <li class="nav-item"><a class="nav-link" href="#">Attraction</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Service</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Clients</a></li>                        
