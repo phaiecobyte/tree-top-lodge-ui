@@ -1,1 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+// /* You can add global styles to this file, and also import other style files */
+
+// // Modern Sass syntax
+// @use './styles/variables' as vars;
+// @use './styles/mixins' as mix;
+
+// // Global styles
+// body {
+//   font-family: vars.$font-family-base;
+//   line-height: 1.6;
+// }
+
+// // Typography
+// h1, h2, h3, h4, h5, h6 {
+//   font-family: vars.$headings-font-family;
+//   margin-top: vars.$spacer;
+//   margin-bottom: vars.$spacer;
+// }
+
+// // Card hover effects example usage
+// .card {
+//   @include mix.card-hover;
+// }
+
+// // Responsive text example
+// .hero-title {
+//   @include mix.responsive-font(1.5rem, 3rem);
+// }
+
+// // Update other styles...

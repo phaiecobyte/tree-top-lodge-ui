@@ -1,0 +1,54 @@
+// Card styles
+.accommodation-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+// Image styles
+.accommodation-img {
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// Pricing styles
+.price .h4 {
+  margin-bottom: 0;
+}
+
+// Badge styles
+.badge {
+  font-weight: 500;
+}
+
+// List group item styles
+.list-group-item {
+  padding: 0.5rem 0;
+  border: none;
+}
+
+// Carousel in modal
+.carousel-item img {
+  height: 400px;
+  object-fit: cover;
+}
+
+// For responsive design
+@media (max-width: 767px) {
+  .accommodation-img {
+    height: 180px;
+  }
+  
+  .carousel-item img {
+    height: 300px;
+  }
+}

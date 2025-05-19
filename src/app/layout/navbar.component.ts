@@ -1,10 +1,9 @@
 import { Component } from "@angular/core";
-import { ThemeSwitcherComponent } from "../components/theme-switcher/theme-switcher.component";
 import { RouterModule } from "@angular/router";
 
 @Component({
     selector: "app-navbar",
-    imports: [ThemeSwitcherComponent, RouterModule],
+    imports: [RouterModule],
     template: `
         <nav class="navbar navbar-expand-lg bg-primary shadow-sm">
             <div class="container">
@@ -37,9 +36,16 @@ import { RouterModule } from "@angular/router";
                         <li class="nav-item">
                             <a class="nav-link" routerLink="/contact" routerLinkActive="active">Contact Us</a>
                         </li>
-                    </ul>      
+                    </ul> 
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" routerLink="/register" routerLinkActive="active">Register</a>
+                        </li>
+                    </ul>     
                 </div>
-                <app-theme-switcher></app-theme-switcher>              
             </div>
         </nav>`,
     styles: [
