@@ -1,13 +1,14 @@
 export interface FoodBeverage {
-    id?: string;  // Using string for Firebase IDs
+    id?: string;
     name: string;
     description: string;
     price: number;
-    imageUrl: string[]; // Array of image URLs
+    imageUrl: string;
+    additionalImages?: string[];
     rating: number;
     reviews?: number;
     category: string;
     available: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt?: Date; // For timestamps from Firebase
+    updatedAt?: Date; // For timestamps from Firebase
 }

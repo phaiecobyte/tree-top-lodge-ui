@@ -36,8 +36,8 @@ import { AuthService } from '../core/authentication/auth.service';
               </a>
             </li>
             <li class="nav-item mb-2">
-              <a class="nav-link text-white d-flex align-items-center" routerLink="/admin/bookings" routerLinkActive="active">
-                <i class="bi bi-calendar-check me-3"></i> Bookings
+              <a class="nav-link text-white d-flex align-items-center" routerLink="/admin/category" routerLinkActive="active">
+                <i class="bi bi-calendar-check me-3"></i> Category
               </a>
             </li>
             <li class="nav-item mb-2">
@@ -45,7 +45,9 @@ import { AuthService } from '../core/authentication/auth.service';
                 <i class="bi bi-cup-hot me-3"></i> Food & Beverage
               </a>
             </li>
+
             <hr/>
+
             <li class="nav-item mb-2">
               <a class="nav-link text-white d-flex align-items-center" routerLink="/admin/users" routerLinkActive="active">
                 <i class="bi bi-people me-3"></i> Users

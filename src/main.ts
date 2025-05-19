@@ -7,6 +7,6 @@ bootstrapApplication(AppComponent, appConfig)
   .then(ref => {
     // Set default theme after app initialization
     const themeService = ref.injector.get(ThemeService);
-    themeService.setTheme('flatly');
+    themeService.setTheme('darkly');
   })
   .catch((err) => console.error(err));

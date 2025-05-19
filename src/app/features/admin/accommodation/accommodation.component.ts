@@ -12,7 +12,7 @@ declare var bootstrap: any;
   templateUrl: './accommodation.component.html',
   styleUrl: './accommodation.component.scss'
 })
-export class AccommodationComponent implements OnInit, OnDestroy {
+export class AdminAccommodationComponent implements OnInit, OnDestroy {
   accommodations: Accommodation[] = [];
   accommodationForm: FormGroup;
   isLoading: boolean = false;

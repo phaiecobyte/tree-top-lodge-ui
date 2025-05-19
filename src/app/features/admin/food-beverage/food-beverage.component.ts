@@ -13,6 +13,7 @@ declare var bootstrap: any;
   selector: 'app-food-beverage',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
+  providers: [FoodBeverageService],
   templateUrl: './food-beverage.component.html',
   styleUrls: ['./food-beverage.component.scss']
 })
@@ -46,7 +47,7 @@ export class AdminFoodBeverageComponent implements OnInit, OnDestroy {
       name: ['', [Validators.required, Validators.minLength(2)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       price: [0, [Validators.required, Validators.min(0)]],
-      imageUrl: ['', [Validators.required]],
+      imageUrl: ['',[Validators.required]],
       rating: [5, [Validators.min(1), Validators.max(5)]],
       category: ['', [Validators.required]],
       available: [true]
@@ -114,15 +115,23 @@ export class AdminFoodBeverageComponent implements OnInit, OnDestroy {
   // Open modal for editing an existing item
   openEditModal(item: FoodBeverage): void {
     this.currentItemId = item.id?.toString();
-    this.foodBeverageForm.setValue({
+    
+    // Create a copy of the item to ensure we don't modify the original
+    const formValue = {
       name: item.name,
       description: item.description,
       price: item.price,
-      imageUrl: item.imageUrl,
+      // Handle imageUrl properly
+      imageUrl:item.imageUrl || '',
       rating: item.rating,
       category: item.category,
       available: item.available
-    });
+    };
+    
+    // Reset form first, then set values
+    this.foodBeverageForm.reset();
+    this.foodBeverageForm.patchValue(formValue);
+    
     this.itemModal?.show();
   }
   
@@ -140,11 +149,38 @@ export class AdminFoodBeverageComponent implements OnInit, OnDestroy {
     }
     
     this.isLoading = true;
-    const itemData = this.foodBeverageForm.value;
+    const formData = this.foodBeverageForm.value;
     
+    // Debug data
+    console.log('Form data to save:', JSON.stringify(formData));
+    
+    // Create new item
+    if (!this.currentItemId) {
+      const subscription = this.foodBeverageService.addItem(formData)
+        .pipe(finalize(() => {
+          this.isLoading = false;
+          this.itemModal?.hide();
+        }))
+        .subscribe({
+          next: (id) => {
+            console.log('Successfully added item with ID:', id);
+            this.successMessage = 'Item added successfully!';
+            this.loadItems(this.selectedCategory || undefined);
+            setTimeout(() => this.successMessage = null, 3000);
+          },
+          error: (error) => {
+            console.error('Error adding item:', error);
+            console.error('Error details:', JSON.stringify(error));
+            this.errorMessage = 'Failed to add item. Please try again.';
+            setTimeout(() => this.errorMessage = null, 5000);
+          }
+        });
+      
+      this.subscriptions.push(subscription);
+    } 
     // Update existing item
-    if (this.currentItemId) {
-      const subscription = this.foodBeverageService.updateItem(this.currentItemId, itemData)
+    else {
+      const subscription = this.foodBeverageService.updateItem(this.currentItemId, formData)
         .pipe(finalize(() => {
           this.isLoading = false;
           this.itemModal?.hide();
@@ -158,28 +194,6 @@ export class AdminFoodBeverageComponent implements OnInit, OnDestroy {
           error: (error) => {
             console.error('Error updating item:', error);
             this.errorMessage = 'Failed to update item. Please try again.';
-            setTimeout(() => this.errorMessage = null, 5000);
-          }
-        });
-      
-      this.subscriptions.push(subscription);
-    } 
-    // Create new item
-    else {
-      const subscription = this.foodBeverageService.addItem(itemData)
-        .pipe(finalize(() => {
-          this.isLoading = false;
-          this.itemModal?.hide();
-        }))
-        .subscribe({
-          next: () => {
-            this.successMessage = 'Item added successfully!';
-            this.loadItems(this.selectedCategory || undefined);
-            setTimeout(() => this.successMessage = null, 3000);
-          },
-          error: (error) => {
-            console.error('Error adding item:', error);
-            this.errorMessage = 'Failed to add item. Please try again.';
             setTimeout(() => this.errorMessage = null, 5000);
           }
         });
