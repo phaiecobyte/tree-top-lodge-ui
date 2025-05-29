@@ -3,8 +3,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Accommodation } from '../../../shared/models/accommodation.model';
+import { Accommodation } from '../../../core/models/accommodation.model';
 import { AccommodationService } from '../../../core/services/accommodation.service';
+
 
 declare var bootstrap: any;
 
@@ -33,31 +34,11 @@ export class AccomodationComponent implements OnInit, OnDestroy {
   private accommodationSubscription: Subscription | undefined;
 
   constructor(private accommodationService: AccommodationService) {}
-
-  ngOnInit() {
-    // Fetch accommodations from Firebase
-    this.isLoading = true;
-    this.accommodationSubscription = this.accommodationService.getAllAccommodations()
-      .subscribe({
-        next: (data) => {
-          this.accommodations = data;
-          this.isLoading = false;
-          
-          // Initialize the modal after data is loaded and DOM is updated
-          setTimeout(() => {
-            const modalElement = document.getElementById('bookingModal');
-            if (modalElement) {
-              this.bookingModal = new bootstrap.Modal(modalElement);
-            }
-          }, 0);
-        },
-        error: (error) => {
-          console.error('Error fetching accommodations:', error);
-          this.errorMessage = 'Unable to load accommodations. Please try again later.';
-          this.isLoading = false;
-        }
-      });
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
+
+
 
   ngOnDestroy() {
     // Clean up subscription to prevent memory leaks

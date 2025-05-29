@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { AuthService } from '../core/authentication/auth.service';
 
 @Component({
@@ -174,8 +174,12 @@ import { AuthService } from '../core/authentication/auth.service';
     }
   `]
 })
-export class AdminLayoutComponent {
-  constructor(private authService: AuthService) {}
+export class AdminLayoutComponent implements OnInit {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+
+  ) {}
 
   ngOnInit() {
     this.setupSidebarToggle();
@@ -203,13 +207,8 @@ export class AdminLayoutComponent {
   }
 
   logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log('Logged out successfully');
-      },
-      error: (error) => {
-        console.error('Error logging out:', error);
-      }
-    });
+    this.authService.logout();
+    console.log('Logged out successfully');
+    this.router.navigate(['/login']); 
   }
 }

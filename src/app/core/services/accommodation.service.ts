@@ -1,68 +1,96 @@
 import { Injectable } from '@angular/core';
-import { 
-  Firestore, 
-  collection, 
-  collectionData, 
-  doc, 
-  docData, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where 
-} from '@angular/fire/firestore';
-import { Observable, from, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { Accommodation } from '../../shared/models/accommodation.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, switchMap } from 'rxjs';
+import { BaseApiService, PageRequest, PageResponse } from './base-api.service';
+
+export interface Accommodation {
+  id: number;
+  accommodationId: string;
+  name: string;
+  type: string;
+  description: string;
+  mainImgUrl: string;  // Match server field name
+  additionalImgUrls: string[];  // Match server field name
+  pricePerNight: number;
+  maxGuests: number;
+  beds: number;
+  bathrooms: number;
+  features: string[];
+  createdAt: string;
+  createdBy: string | null;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class AccommodationService {
-  private accommodationsCollection = 'accommodations';
-  
-  constructor(private firestore: Firestore) {}
-
-  // Get all accommodations
-  getAllAccommodations(): Observable<Accommodation[]> {
-    const collectionRef = collection(this.firestore, 'accommodations');
-    return collectionData(collectionRef, { idField: 'id' }).pipe(
-      map(items => items as Accommodation[]),
-      catchError(error => {
-        console.error('Error fetching accommodations:', error);
-        return throwError(() => new Error(`Failed to load accommodations: ${error.message}`));
-      })
-    );
+export class AccommodationService extends BaseApiService<Accommodation> {
+  constructor(http: HttpClient) {
+    super('accommodations', http);
   }
 
-  // Get a specific accommodation by ID
-  getAccommodationById(id: string): Observable<Accommodation> {
-    const docRef = doc(this.firestore, `${this.accommodationsCollection}/${id}`);
-    return docData(docRef, { idField: 'id' }) as Observable<Accommodation>;
+  /**
+   * Override the base method to handle file uploads for the main image
+   */
+  override create(accommodation: any): Observable<Accommodation> {
+    // Handle file uploads before creating the accommodation
+    if (accommodation.mainImage instanceof File) {
+      return this.handleImageUploads(accommodation).pipe(
+        switchMap(updatedAccommodation => {
+          // Now call the parent create method with the updated data
+          return super.create(updatedAccommodation);
+        })
+      );
+    }
+    return super.create(accommodation);
   }
 
-  // Get accommodations by type
-  getAccommodationsByType(type: string): Observable<Accommodation[]> {
-    const collectionRef = collection(this.firestore, this.accommodationsCollection);
-    const q = query(collectionRef, where('type', '==', type));
-    return collectionData(q, { idField: 'id' }) as Observable<Accommodation[]>;
+  /**
+   * Override the base method to handle file uploads for updates
+   */
+  override update(accommodation: any): Observable<Accommodation> {
+    // Handle file uploads before updating the accommodation
+    if (accommodation.mainImage instanceof File) {
+      return this.handleImageUploads(accommodation).pipe(
+        switchMap(updatedAccommodation => {
+          // Now call the parent update method with the updated data
+          return super.update(updatedAccommodation);
+        })
+      );
+    }
+    return super.update(accommodation);
   }
 
-  // Add a new accommodation
-  addAccommodation(accommodation: Accommodation): Observable<any> {
-    const collectionRef = collection(this.firestore, this.accommodationsCollection);
-    return from(addDoc(collectionRef, accommodation));
-  }
-
-  // Update an accommodation
-  updateAccommodation(id: string, accommodation: Partial<Accommodation>): Observable<any> {
-    const docRef = doc(this.firestore, `${this.accommodationsCollection}/${id}`);
-    return from(updateDoc(docRef, accommodation));
-  }
-
-  // Delete an accommodation
-  deleteAccommodation(id: string): Observable<any> {
-    const docRef = doc(this.firestore, `${this.accommodationsCollection}/${id}`);
-    return from(deleteDoc(docRef));
+  /**
+   * Private method to handle image uploads and convert to URLs
+   */
+  private handleImageUploads(accommodation: any): Observable<any> {
+    // Create a copy of the accommodation data
+    const updatedAccommodation = { ...accommodation };
+    
+    // TODO: Implement actual file upload logic here
+    // For now, we'll simulate it
+    
+    if (updatedAccommodation.mainImage instanceof File) {
+      // In a real application, you would upload the file and get a URL
+      updatedAccommodation.mainImgUrl = 'mock-image-url.jpg';
+      delete updatedAccommodation.mainImage;
+    }
+    
+    const additionalImages = updatedAccommodation.additionalImages || [];
+    if (Array.isArray(additionalImages) && additionalImages.length > 0 && 
+        additionalImages[0] instanceof File) {
+      // In a real application, you would upload each file and get URLs
+      updatedAccommodation.additionalImgUrls = additionalImages.map((_: any, i: number) => 
+        `mock-additional-image-${i}.jpg`);
+      delete updatedAccommodation.additionalImages;
+    }
+    
+    // Return an Observable that emits the updated accommodation
+    return new Observable(observer => {
+      observer.next(updatedAccommodation);
+      observer.complete();
+    });
   }
 }

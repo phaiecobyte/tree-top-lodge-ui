@@ -1,22 +1,23 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/authentication/auth.guard';
-import { NotFoundComponent } from './shared/components/not-found.component';
+import { NotFoundComponent } from './shared/components/ui/not-found.component';
 
-//website components
+//public features
 import { WebsiteLayoutComponent } from './layout/website-layout.component';
 import { AccomodationComponent } from './features/website/accomodation/accomodation.component';
 import { FoodBeverageComponent } from './features/website/food-beverage/food-beverage.component';
 import { LoginComponent } from './features/website/login/login.component';
 
 
-//admin components
+//admin features
 import { AdminLayoutComponent } from './layout/admin-layout.component';
 import { AdminAccommodationComponent } from './features/admin/accommodation/accommodation.component';
 import { AdminFoodBeverageComponent } from './features/admin/food-beverage/food-beverage.component';
-import { AdminCategoryComponent } from './features/admin/category/category.component';
+import { AuthGuard } from './core/authentication/auth.guard';
+import { PlaceholderComponent } from './shared/components/ui/placeholder.component';
 
 export const routes: Routes = [
   {
+    //public routes
     path: '',
     component: WebsiteLayoutComponent,
     children: [
@@ -32,14 +33,13 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: NotFoundComponent },
       { path: 'accommodations', component: AdminAccommodationComponent },
-      { path: 'bookings', component: NotFoundComponent },
+      { path: 'category', component: PlaceholderComponent },
       { path: 'food-beverage', component: AdminFoodBeverageComponent },
-      { path: 'category', component: AdminCategoryComponent },
       { path: 'users', component: NotFoundComponent },
-      { path: 'settings', component: NotFoundComponent },
+      { path: 'settings', component: PlaceholderComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
   { path: '', pathMatch: 'full', redirectTo: 'accommodation' },
-  { path: '**', component: NotFoundComponent }
+  { path: '**', component: PlaceholderComponent }
 ];

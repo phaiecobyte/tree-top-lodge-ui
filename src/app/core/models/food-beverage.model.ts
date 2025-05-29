@@ -9,6 +9,6 @@ export interface FoodBeverage {
     reviews?: number;
     category: string;
     available: boolean;
-    createdAt?: Date; // For timestamps from Firebase
-    updatedAt?: Date; // For timestamps from Firebase
+    createdAt?: Date; 
+    updatedAt?: Date; 
 }

@@ -1,32 +1,49 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Category } from '../../shared/models/category';
+import { 
+  Firestore, collection, collectionData, doc, 
+  getDoc, addDoc, updateDoc, deleteDoc, DocumentReference
+} from '@angular/fire/firestore';
+import { Observable, from } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Category } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
+  private collectionName = 'categories';
 
-  constructor(private angularFireStore:AngularFirestore) { }
+  constructor(private firestore: Firestore) { }
 
-  addCategory(data:Category){
-    data.id = this.angularFireStore.createId();
-    return this.angularFireStore.collection('category').add(data);
+  getCategories(): Observable<Category[]> {
+    const categoriesRef = collection(this.firestore, this.collectionName);
+    return collectionData(categoriesRef, { idField: 'id' }) as Observable<Category[]>;
   }
 
-  getAllCategories(){
-    return this.angularFireStore.collection('category').snapshotChanges();
+  getCategoryById(id: string): Observable<Category> {
+    const categoryDocRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    return from(getDoc(categoryDocRef)).pipe(
+      map(docSnap => {
+        if (!docSnap.exists()) {
+          throw new Error(`Category with ID ${id} not found`);
+        }
+        return { id: docSnap.id, ...docSnap.data() } as Category;
+      })
+    );
   }
 
-  deleteCategory(data:Category){
-    return this.angularFireStore.doc('category'+data.id).delete();
+  addCategory(category: Omit<Category, 'id'>): Observable<DocumentReference> {
+    const categoriesRef = collection(this.firestore, this.collectionName);
+    return from(addDoc(categoriesRef, category));
   }
 
-  updateCategory(data:Category){
-    return this.angularFireStore.doc('category'+data.id).update(data);
+  updateCategory(id: string, data: Partial<Category>): Observable<void> {
+    const categoryDocRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    return from(updateDoc(categoryDocRef, data));
   }
 
-
-
-
+  deleteCategory(id: string): Observable<void> {
+    const categoryDocRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    return from(deleteDoc(categoryDocRef));
+  }
 }

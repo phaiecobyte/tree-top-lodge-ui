@@ -1,208 +1,254 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Accommodation } from '../../../shared/models/accommodation.model';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { AccommodationService } from '../../../core/services/accommodation.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AccommodationService } from '../../../core/services/accommodation.service';
+import { DataTableComponent } from '../../../shared/components/data-display/data-table.component';
+import { ModalComponent } from "../../../shared/components/modal/modal.component";
+import { TextInputComponent } from "../../../shared/components/control/text-input.component";
+import { SelectInputComponent } from "../../../shared/components/control/select-input.component";
+import { TextareaInputComponent } from "../../../shared/components/control/textarea-input.component";
+import { ImageUploadComponent } from "../../../shared/components/control/file-upload.component";
+import { MultiImageUploadComponent } from "../../../shared/components/control/multi-file-upload.component";
 
-declare var bootstrap: any;
 @Component({
   selector: 'app-accommodation',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    DataTableComponent,
+    ModalComponent,
+    TextInputComponent,
+    SelectInputComponent,
+    TextareaInputComponent,
+    ImageUploadComponent,
+    MultiImageUploadComponent
+  ],
   templateUrl: './accommodation.component.html',
   styleUrl: './accommodation.component.scss'
 })
-export class AdminAccommodationComponent implements OnInit, OnDestroy {
-  accommodations: Accommodation[] = [];
-  accommodationForm: FormGroup;
-  isLoading: boolean = false;
-  errorMessage: string | null = null;
-  successMessage: string | null = null;
-  showForm: boolean = false;
-  isEditing: boolean = false;
-  currentAccommodationId: string | null = null;
-  deleteAccommodationId: string | null = null;
-  private subscriptions: Subscription[] = [];
+export class AdminAccommodationComponent implements OnInit {
+
+
+  @ViewChild('modal') modal!: ModalComponent;
+  
+  accommodationForm!: FormGroup;
+  accommodations: any[] = [];
+  loading = false;
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 0;
+  totalPages = 0;
+  isEditing = false;
+  selectedId: number | null = null;
+  
+  roomTypeOptions = [
+    { value: 'standard', label: 'Standard Room' },
+    { value: 'deluxe', label: 'Deluxe Room' },
+    { value: 'suite', label: 'Suite' },
+    { value: 'villa', label: 'Villa' }
+  ];
+  
+  columns = [
+    { header: 'Name', field: 'name', sortable: true },
+    { header: 'Type', field: 'type', sortable: true },
+    { header: 'Price', field: 'pricePerNight', sortable: true, formatter: (val: number) => `$${val}` },
+    { header: 'Max Guests', field: 'maxGuests', sortable: true },
+    { header: 'Status', field: 'status', sortable: true }
+  ];
 
   constructor(
-    private accommodationService: AccommodationService,
-    private fb: FormBuilder
-  ) {
-    this.accommodationForm = this.createForm();
-  }
+    private fb: FormBuilder,
+    private accommodationService: AccommodationService
+  ) {}
 
   ngOnInit(): void {
+    this.initForm();
     this.loadAccommodations();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  initForm(): void {
+    this.accommodationForm = this.fb.group({
+      id: [0],
+      accommodationId:[''],
+      name: ['', Validators.required],
+      description: [''],
+      type: ['', Validators.required],
+      pricePerNight: [0, [Validators.required, Validators.min(0)]],
+      maxGuests: [1, [Validators.required, Validators.min(1)]],
+      beds: [1, Validators.required],
+      bathrooms: [1, Validators.required],
+      features: [''],
+      mainImage: [null, Validators.required],
+      additionalImages: [[]]
+    });
   }
 
   loadAccommodations(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    
-    const sub = this.accommodationService.getAllAccommodations().subscribe({
-      next: (data) => {
-        this.accommodations = data;
-        this.isLoading = false;
+    this.loading = true;
+    this.accommodationService.getAllNormalized({
+      page: this.currentPage,
+      size: this.pageSize,
+      sort: 'name,asc'
+    }).subscribe({
+      next: (response) => {
+        // The response is now normalized, so you can always use response.content
+        this.accommodations = response.content || [];
+        this.totalItems = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.number;
+        this.loading = false;
+        console.log("Accommodations loaded:", this.accommodations);
       },
       error: (error) => {
-        console.error('Error fetching accommodations:', error);
-        this.errorMessage = 'Failed to load accommodations. Please try again.';
-        this.isLoading = false;
+        console.error('Error loading accommodations', error);
+        this.loading = false;
       }
     });
-    
-    this.subscriptions.push(sub);
   }
 
-  createForm(): FormGroup {
-    return this.fb.group({
-      name: ['', Validators.required],
-      type: ['Treehouse', Validators.required],
-      description: ['', Validators.required],
-      imageUrl: ['', Validators.required],
-      additionalImages: [''],
-      pricePerNight: [0, [Validators.required, Validators.min(0)]],
-      maxGuests: [1, [Validators.required, Validators.min(1)]],
-      beds: ['', Validators.required],
-      bathrooms: ['', Validators.required],
-      features: ['']
-    });
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadAccommodations();
   }
 
-  showAddForm(): void {
+  onSortChange(event: any): void {
+    // Implement sorting
+    this.loadAccommodations();
+  }
+
+  onSearch(term: string): void {
+    // Implement search
+    this.loadAccommodations();
+  }
+
+  openAddModal(): void {
     this.isEditing = false;
-    this.currentAccommodationId = null;
+    this.selectedId = null;
     this.accommodationForm.reset({
-      type: 'Treehouse',
       pricePerNight: 0,
-      maxGuests: 1
+      maxGuests: 1,
+      beds: 1,
+      bathrooms: 1,
+      type: '',
+      features: '',
+      mainImage: null,
+      additionalImages: []
     });
-    this.showForm = true;
+    this.modal.show();
   }
 
-  editAccommodation(accommodation: Accommodation): void {
+  editAccommodation(accommodation: any): void {
     this.isEditing = true;
-    this.currentAccommodationId = accommodation.id || null;
+    this.selectedId = accommodation.id;
     
-    this.accommodationForm.setValue({
+    // Reset the form first to clear any previous values
+    this.accommodationForm.reset();
+    
+    // Patch the form with accommodation data
+    this.accommodationForm.patchValue({
+      id: accommodation.id,
       name: accommodation.name,
-      type: accommodation.type,
       description: accommodation.description,
-      imageUrl: accommodation.imageUrl,
-      additionalImages: accommodation.images.slice(1).join(','),
+      type: accommodation.type,
       pricePerNight: accommodation.pricePerNight,
       maxGuests: accommodation.maxGuests,
       beds: accommodation.beds,
       bathrooms: accommodation.bathrooms,
-      features: accommodation.features.join(',')
+      features: accommodation.features.join(', '), // Convert array to comma-separated string
+      // For images, we need to handle them differently
+      mainImage: accommodation.imageUrl, // This will be a URL string
+      additionalImages: accommodation.additionalImages || [] // Array of URLs
     });
     
-    this.showForm = true;
+    this.modal.show();
   }
 
-  cancelForm(): void {
-    this.showForm = false;
-    this.accommodationForm.reset();
+  deleteAccommodation(accommodation: any): void {
+    if (confirm(`Are you sure you want to delete ${accommodation.name}?`)) {
+      this.accommodationService.delete(accommodation.id).subscribe({
+        next: () => {
+          this.loadAccommodations();
+        },
+        error: (error) => {
+          console.error('Error deleting accommodation', error);
+        }
+      });
+    }
+  }
+
+  onMainImageSelected(file: File): void {
+    console.log('Main image selected:', file.name, file.size);
+    // You can perform additional actions here if needed
+  }
+
+  onAdditionalImagesSelected(files: File[]): void {
+    console.log('Additional images selected:', files.length);
+    files.forEach(file => {
+      console.log('- ', file.name, file.size);
+    });
+    // You can perform additional actions here if needed
   }
 
   saveAccommodation(): void {
-    if (this.accommodationForm.invalid) return;
-    
-    const formValue = this.accommodationForm.value;
-    const additionalImagesList = formValue.additionalImages ? 
-      formValue.additionalImages.split(',').map((url: string) => url.trim()) : [];
-      
-    const accommodationData: Accommodation = {
-      name: formValue.name,
-      type: formValue.type,
-      description: formValue.description,
-      imageUrl: formValue.imageUrl,
-      images: [formValue.imageUrl, ...additionalImagesList],
-      pricePerNight: +formValue.pricePerNight,
-      maxGuests: +formValue.maxGuests,
-      beds: formValue.beds,
-      bathrooms: formValue.bathrooms,
-      features: formValue.features ? formValue.features.split(',').map((feature: string) => feature.trim()) : []
-    };
-    
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.successMessage = null;
-    
-    if (this.isEditing && this.currentAccommodationId) {
-      // Update existing accommodation
-      const sub = this.accommodationService.updateAccommodation(this.currentAccommodationId, accommodationData).subscribe({
-        next: () => {
-          this.successMessage = 'Accommodation updated successfully!';
-          this.isLoading = false;
-          this.showForm = false;
-          this.loadAccommodations();
-        },
-        error: (error) => {
-          console.error('Error updating accommodation:', error);
-          this.errorMessage = 'Failed to update accommodation. Please try again.';
-          this.isLoading = false;
-        }
+    if (this.accommodationForm.invalid) {
+      // Mark all fields as touched to trigger validation messages
+      Object.keys(this.accommodationForm.controls).forEach(key => {
+        const control = this.accommodationForm.get(key);
+        control?.markAsTouched();
       });
-      
-      this.subscriptions.push(sub);
-    } else {
-      // Add new accommodation
-      const sub = this.accommodationService.addAccommodation(accommodationData).subscribe({
-        next: () => {
-          this.successMessage = 'New accommodation added successfully!';
-          this.isLoading = false;
-          this.showForm = false;
-          this.loadAccommodations();
-        },
-        error: (error) => {
-          console.error('Error adding accommodation:', error);
-          this.errorMessage = 'Failed to add accommodation. Please try again.';
-          this.isLoading = false;
-        }
-      });
-      
-      this.subscriptions.push(sub);
+      return;
     }
-  }
-
-  deleteAccommodation(accommodation: Accommodation): void {
-    if (!accommodation.id) return;
-    this.deleteAccommodationId = accommodation.id;
     
-    // Initialize and show the modal
-    const modalElement = document.getElementById('deleteConfirmationModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+    const formData = this.accommodationForm.value;
+    
+    // Process features from comma-separated string to array
+    if (typeof formData.features === 'string') {
+      formData.features = formData.features
+        .split(',')
+        .map((feature: string) => feature.trim())
+        .filter((feature: string) => feature.length > 0);
     }
-  }
-
-  confirmDelete(): void {
-    if (!this.deleteAccommodationId) return;
     
-    this.isLoading = true;
-    this.errorMessage = null;
+    // Here you would typically:
+    // 1. Upload the main image and get the URL
+    // 2. Upload the additional images and get the URLs
+    // 3. Update the formData with the URLs
+    // 4. Save the accommodation data
     
-    const sub = this.accommodationService.deleteAccommodation(this.deleteAccommodationId).subscribe({
+    // For this example, we'll simulate the process:
+    console.log('Saving accommodation:', formData);
+    
+    // Handle main image - in a real app, upload the file and get a URL
+    const mainImageFile = formData.mainImage;
+    if (mainImageFile instanceof File) {
+      console.log('Uploading main image:', mainImageFile.name);
+      // Here you would call a service to upload the file
+      // Then update formData.mainImage with the returned URL
+    }
+    
+    // Handle additional images
+    const additionalImageFiles = formData.additionalImages || [];
+    if (Array.isArray(additionalImageFiles) && additionalImageFiles.length > 0) {
+      console.log('Uploading additional images:', additionalImageFiles.length);
+      // Here you would call a service to upload each file
+      // Then update formData.additionalImages with the returned URLs
+    }
+    
+    // Save accommodation data
+    const saveObservable = this.isEditing 
+      ? this.accommodationService.update(formData)
+      : this.accommodationService.create(formData);
+      
+    saveObservable.subscribe({
       next: () => {
-        this.successMessage = 'Accommodation deleted successfully!';
-        this.isLoading = false;
+        this.modal.hide();
         this.loadAccommodations();
-        
-    
       },
       error: (error) => {
-        console.error('Error deleting accommodation:', error);
-        this.errorMessage = 'Failed to delete accommodation. Please try again.';
-        this.isLoading = false;
+        console.error('Error saving accommodation', error);
       }
     });
-    
-    this.subscriptions.push(sub);
   }
 }

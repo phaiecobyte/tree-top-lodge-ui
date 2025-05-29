@@ -1,97 +1,112 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../../core/authentication/auth.service';
+import { TextInputComponent } from '../../../shared/components/control/text-input.component';
+import { PasswordInputComponent } from '../../../shared/components/control/password-input.component';
+import { LoadingButtonComponent } from "../../../shared/components/ui/loading-btn.component";
+import { user } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <div class="container mb-5">
-      <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-          <div class="card shadow mt-5">
-            <div class="card-body p-4">
-              <h2 class="text-center mb-4">Admin Login</h2>
-              
-              <div *ngIf="errorMessage" class="alert alert-danger">
-                {{ errorMessage }}
-              </div>
-              
-              <form (ngSubmit)="onSubmit()">
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email address</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    [(ngModel)]="email"
-                    name="email"
-                    required
-                  >
-                </div>
-                
-                <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    [(ngModel)]="password"
-                    name="password"
-                    required
-                  >
-                </div>
-                
-                <button
-                  type="submit"
-                  class="btn btn-primary w-100"
-                  [disabled]="isLoading"
-                >
-                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Log In
-                </button>
-              </form>
+  standalone:true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TextInputComponent,
+    PasswordInputComponent,
+    LoadingButtonComponent
+],
+providers:[AuthService],
+  template: ` 
+  <div class="container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow mt-5">
+          <div class="card-body p-4">
+            <h2 class="text-center mb-4">Login</h2>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <!-- Error Alert -->
+            <div *ngIf="error" class="alert alert-danger" role="alert">
+              {{ error }}
             </div>
+            
+            <!-- Username -->
+            <app-text-input
+              label="Username"
+              type="text"
+              formControlName="username"
+            ></app-text-input>
+            
+            <!-- Password -->
+            <app-password-input
+              label="Password"
+              formControlName="password"
+            ></app-password-input>
+            
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <app-loading-button
+                type="submit"
+                [loading]="loading"
+                [disabled]="loginForm.invalid"
+                loadingText="Logging in..."
+                [block]="true"
+              >Login</app-loading-button>
+            </div>
+          </form>
           </div>
         </div>
       </div>
     </div>
-  `,
-  styles: []
+  </div>`,
 })
 export class LoginComponent {
-  email: string = '';
-  password: string = '';
-  isLoading: boolean = false;
-  errorMessage: string | null = null;
+  loginForm: FormGroup;
+  loading = false;
+  error: string | null = null;
 
   constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+    private fb: FormBuilder,
+    private authService:AuthService,
+    private router:Router
+  ) {
+    this.loginForm = this.fb.group({
+      username: ['',[Validators.required]],
+      password: ['', [Validators.required]],
+    });
+  }
 
   onSubmit(): void {
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Please enter both email and password.';
+    if (this.loginForm.invalid) {
       return;
     }
-
-    this.isLoading = true;
-    this.errorMessage = null;
-
-    this.authService.login(this.email, this.password).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.router.navigate(['/admin/accommodations']);
+    
+    this.loading = true;
+    this.error = null;
+    
+    const { username, password } = this.loginForm.value;
+    
+    this.authService.login(username, password).subscribe({
+      next: (response) => {
+        this.loading = false;
+        // Navigate to dashboard or home page after successful login
+        this.router.navigate(['admin/dashboard'])
+        console.log('Login successful', response);
       },
-      error: (error) => {
-        console.error('Login error:', error);
-        this.errorMessage = 'Invalid email or password.';
-        this.isLoading = false;
+      error: (err) => {
+        this.loading = false;
+        this.error = err.message || 'Failed to login. Please try again.';
+        console.error('Login error:', err);
       }
     });
   }
+
+
 }
