@@ -10,8 +10,6 @@ import { LoginComponent } from './features/website/login/login.component';
 
 //admin features
 import { AdminLayoutComponent } from './layout/admin-layout.component';
-import { AdminAccommodationComponent } from './features/admin/accommodation/accommodation.component';
-import { AdminFoodBeverageComponent } from './features/admin/food-beverage/food-beverage.component';
 import { AuthGuard } from './core/authentication/auth.guard';
 import { PlaceholderComponent } from './shared/components/ui/placeholder.component';
 
@@ -32,9 +30,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: NotFoundComponent },
-      { path: 'accommodations', component: AdminAccommodationComponent },
+      { path: 'accommodations', component: PlaceholderComponent },
       { path: 'category', component: PlaceholderComponent },
-      { path: 'food-beverage', component: AdminFoodBeverageComponent },
+      { path: 'food-beverage', component: PlaceholderComponent },
       { path: 'users', component: NotFoundComponent },
       { path: 'settings', component: PlaceholderComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
