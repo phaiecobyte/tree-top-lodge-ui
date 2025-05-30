@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BaseApiService } from './base-api.service';
+import { AuthService } from '../authentication/auth.service';
 
 export interface FoodBeverage {
   id?: number;
@@ -23,7 +24,7 @@ export interface FoodBeverage {
   providedIn: 'root'
 })
 export class FoodBeverageService extends BaseApiService<FoodBeverage> {
-  constructor(http: HttpClient) {
-    super('food-beverages', http);
+  constructor(http: HttpClient, authService:AuthService) {
+    super('food-beverages', http, authService);
   }
 }

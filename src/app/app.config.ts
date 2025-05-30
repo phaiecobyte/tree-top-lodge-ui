@@ -25,12 +25,5 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
     }),
     
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => getFirestore()),
-    provideAuth(() => getAuth()),
-    provideStorage(() => getStorage()),
-    importProvidersFrom(
-      // Add any additional modules here if needed
-    )
   ]
 };

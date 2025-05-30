@@ -1,7 +1,7 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">Accommodations</h1>
-    <button class="btn btn-primary" (click)="modal.show()">
+    <button class="btn btn-primary" (click)="openAddModal()">
       <i class="bi bi-plus-lg me-1"></i> Add Accommodation
     </button>
   </div>
@@ -17,10 +17,6 @@
         [currentPage]="currentPage"
         [totalPages]="totalPages"
         (pageChange)="onPageChange($event)"
-        (sortChange)="onSortChange($event)"
-        (searchChange)="onSearch($event)"
-        (edit)="editAccommodation($event)"
-        (delete)="deleteAccommodation($event)"
       >
         <div tableActions>
           <button class="btn btn-outline-secondary">
@@ -34,7 +30,7 @@
             <i class="bi bi-house-slash fs-1 text-muted mb-3"></i>
             <h5>No accommodations found</h5>
             <p class="text-muted">Start by adding your first accommodation.</p>
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" (click)="openAddModal()">
               <i class="bi bi-plus-lg me-1"></i> Add Accommodation
             </button>
           </div>
@@ -45,76 +41,3 @@
 </div>
 
 
-<app-modal #modal #lgModal size="lg"
-  title="Add Accommodation" 
-  confirmButtonText="Save"
-  (confirm)="saveAccommodation()">
-
-  <form [formGroup]="accommodationForm">
-    <app-text-input
-      label="Name"
-      type="text"
-      formControlName="name"
-    />
-    <app-textarea-input
-      label="Description"
-      formControlName="description"
-    />
-    <div class="row">
-      <div class="col">
-        <app-text-input
-          label="Price/night"
-          type="number"
-          formControlName="pricePerNight"
-        />
-      </div>
-      <div class="col">
-        <app-text-input
-          label="Max Guest"
-          type="number"
-          formControlName="maxGuests"
-        />
-      </div>
-      <div class="col">
-        <app-text-input
-          label="Bed"
-          type="number"
-          formControlName="beds"
-        />
-      </div>
-      <div class="col">
-        <app-text-input
-          label="Bathroom"
-          type="number"
-          formControlName="bathrooms"
-        />
-      </div>
-    </div>
-    <app-select-input
-      label="Room Type"
-      [options]="roomTypeOptions"
-      formControlName="type"
-    />
-    <app-textarea-input
-      label="Features"
-      placeholder="separate by comma"
-      formControlName="features"
-    />
-
-    <app-image-upload
-      label="Main Image"
-      hint="Upload a high-quality image for the main display (max 5MB)"
-      formControlName="mainImage"
-      (imageSelected)="onMainImageSelected($event)"
-    />
-    <app-multi-image-upload
-      label="Additional Images"
-      hint="Upload up to 10 additional images (max 5MB each)"
-      [maxFiles]="10"
-      [maxSize]="50"
-      formControlName="additionalImages"
-      (imagesSelected)="onAdditionalImagesSelected($event)"
-    />
-  </form>
-
-</app-modal>

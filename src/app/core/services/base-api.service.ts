@@ -1,6 +1,7 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, map } from "rxjs";
+import { AuthService } from "../authentication/auth.service";
 
 export interface PageRequest {
   page?: number;
@@ -30,11 +31,22 @@ export interface PageResponse<T> {
 export class BaseApiService<T> {
   constructor(
     @Inject('endpoint') protected endpoint: string,
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected authService: AuthService
   ) { }
 
   get apiUrl() {
     return 'http://localhost:8080/api/v1/';
+  }
+
+  /**
+   * Get authorization headers with the current token
+   */
+  protected getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
   /**
@@ -57,7 +69,13 @@ export class BaseApiService<T> {
       }
     }
     
-    return this.http.get<PageResponse<T>>(`${this.apiUrl}${this.endpoint}`, { params });
+    return this.http.get<PageResponse<T>>(
+      `${this.apiUrl}${this.endpoint}`, 
+      { 
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
   /**
@@ -93,35 +111,52 @@ export class BaseApiService<T> {
    * Get all entities without pagination
    */
   getAllNoPaging(): Observable<T[]> {
-    return this.http.get<T[]>(`${this.apiUrl}${this.endpoint}/all`);
+    return this.http.get<T[]>(
+      `${this.apiUrl}${this.endpoint}/all`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
    * Get a single entity by ID
    */
   getById(id: string | number): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}${this.endpoint}/${id}`);
+    return this.http.get<T>(
+      `${this.apiUrl}${this.endpoint}/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
    * Create a new entity
    */
   create(entity: T): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}${this.endpoint}`, entity);
+    return this.http.post<T>(
+      `${this.apiUrl}${this.endpoint}`, 
+       entity,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
    * Update an existing entity
    */
   update(entity: T): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}${this.endpoint}`, entity);
+    return this.http.put<T>(
+      `${this.apiUrl}${this.endpoint}`, 
+      entity,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
    * Delete an entity by ID
    */
   delete(id: string | number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${this.endpoint}/${id}`);
+    return this.http.delete<void>(
+      `${this.apiUrl}${this.endpoint}/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
@@ -144,7 +179,13 @@ export class BaseApiService<T> {
       }
     }
     
-    return this.http.get<PageResponse<T>>(`${this.apiUrl}${this.endpoint}/search`, { params });
+    return this.http.get<PageResponse<T>>(
+      `${this.apiUrl}${this.endpoint}/search`, 
+      { 
+        params,
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
   /**
@@ -155,7 +196,11 @@ export class BaseApiService<T> {
     formData.append('file', file);
     formData.append('fileType', fileType);
     
-    return this.http.post<any>(`${this.apiUrl}${this.endpoint}/${id}/upload`, formData);
+    return this.http.post<any>(
+      `${this.apiUrl}${this.endpoint}/${id}/upload`, 
+      formData,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
@@ -170,7 +215,11 @@ export class BaseApiService<T> {
     
     formData.append('fileType', fileType);
     
-    return this.http.post<any>(`${this.apiUrl}${this.endpoint}/${id}/uploads`, formData);
+    return this.http.post<any>(
+      `${this.apiUrl}${this.endpoint}/${id}/uploads`, 
+      formData,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   /**
